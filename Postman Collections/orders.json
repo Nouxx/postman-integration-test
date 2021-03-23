@@ -70,6 +70,10 @@
                 "value": "chopper"
               }
             ],
+            "body": {
+              "mode": "raw",
+              "raw": "this is a test"
+            },
             "url": {
               "raw": "{{host}}/order-management/v2/orders/counter/{{storeId}}?ean={{ean}}&to_collect_cnc_delay_days=14&to_collect_cnc1h_delay_days=2",
               "host": [
