@@ -38,7 +38,7 @@
               }
             }
           ],
-          "_postman_id": "8288bf2e-4cf7-48bf-9203-52dbd7359ed1",
+          "id": "8288bf2e-4cf7-48bf-9203-52dbd7359ed1",
           "protocolProfileBehavior": {
             "disableBodyPruning": true
           },
@@ -101,7 +101,7 @@
           "response": []
         }
       ],
-      "_postman_id": "450073af-9a37-457c-81b4-cb497c2a1fe7",
+      "id": "450073af-9a37-457c-81b4-cb497c2a1fe7",
       "event": [
         {
           "listen": "prerequest",
@@ -201,7 +201,7 @@
               }
             }
           ],
-          "_postman_id": "39d25487-7c3c-4741-aa28-2f508b7599db",
+          "id": "39d25487-7c3c-4741-aa28-2f508b7599db",
           "protocolProfileBehavior": {
             "disableBodyPruning": true
           },
@@ -239,10 +239,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"page_number\": 1,\n    \"sort_field\": \"{{sort_field}}\",\n    \"sort_type\": \"{{sort_type}}\",\n    \"status\": \"TO_COLLECT\"\n}",
-              "options": {
-                "raw": {}
-              }
+              "raw": "{\n    \"page_number\": 1,\n    \"sort_field\": \"{{sort_field}}\",\n    \"sort_type\": \"{{sort_type}}\",\n    \"status\": \"TO_COLLECT\"\n}"
             },
             "url": {
               "raw": "{{host}}/order-management/v2/orders/search/{{storeId}}?ean={{ean}}&to_collect_cnc_delay_days=14&to_collect_cnc1h_delay_days=2",
@@ -275,7 +272,7 @@
           "response": []
         }
       ],
-      "_postman_id": "33e3f3d0-1a34-417b-88ca-7b96fc0b3221",
+      "id": "33e3f3d0-1a34-417b-88ca-7b96fc0b3221",
       "event": [
         {
           "listen": "prerequest",
@@ -365,7 +362,7 @@
               }
             }
           ],
-          "_postman_id": "84a21f4f-3977-4ba2-bf8a-e5dea3912555",
+          "id": "84a21f4f-3977-4ba2-bf8a-e5dea3912555",
           "protocolProfileBehavior": {
             "disableBodyPruning": true
           },
@@ -403,10 +400,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"page_number\": 1,\n    \"sort_field\": \"{{sort_field}}\",\n    \"sort_type\": \"{{sort_type}}\",\n    \"status\": \"IN_TRANSIT\"\n}",
-              "options": {
-                "raw": {}
-              }
+              "raw": "{\n    \"page_number\": 1,\n    \"sort_field\": \"{{sort_field}}\",\n    \"sort_type\": \"{{sort_type}}\",\n    \"status\": \"IN_TRANSIT\"\n}"
             },
             "url": {
               "raw": "{{host}}/order-management/v2/orders/search/{{storeId}}?ean={{ean}}&to_collect_cnc_delay_days=14&to_collect_cnc1h_delay_days=2",
@@ -440,7 +434,7 @@
         },
         {
           "name": "receive order",
-          "_postman_id": "da3529d1-7cd1-445d-8590-ab1a33aa30ca",
+          "id": "da3529d1-7cd1-445d-8590-ab1a33aa30ca",
           "protocolProfileBehavior": {
             "disableBodyPruning": true
           },
@@ -478,24 +472,21 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"ean\": \"{{ean}}\",\n    \"storeId\": {{storeId}},\n    // from shipping_info.tracking_numbers.id\n    \"tracking_number\": \"TEST1AT000000000140\"\n}",
-              "options": {
-                "raw": {}
-              }
+              "raw": "{\n    \"ean\": \"{{ean}}\",\n    \"storeId\": {{storeId}},\n    // from shipping_info.tracking_numbers.id\n    \"tracking_number\": \"TEST1AT000000000140\"\n}"
             },
             "url": "{{host}}/order-management/v2/orders/receive"
           },
           "response": []
         }
       ],
-      "_postman_id": "36f15c30-1f6c-4816-9832-91be51f835ba"
+      "id": "36f15c30-1f6c-4816-9832-91be51f835ba"
     },
     {
       "name": "Advanced Search",
       "item": [
         {
           "name": "search orders",
-          "_postman_id": "00450f25-69d3-40c7-8d8e-f30399ad6cce",
+          "id": "00450f25-69d3-40c7-8d8e-f30399ad6cce",
           "protocolProfileBehavior": {
             "disableBodyPruning": true
           },
@@ -533,10 +524,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"email\": \"customer1@gmail.com\",\n    \"firstname\": \"prenom\",\n    \"lastname\": \"nom\",\n    \"order_id\": \"ORDERID\",\n    \"page_number\": 1,\n    \"phone\": \"0320411160\",\n    \"sort_field\": \"SHIPPING_GROUP_STATUS\",\n    \"sort_type\": \"DESC\",\n    \"status\": \"IN_TRANSIT\"\n}",
-              "options": {
-                "raw": {}
-              }
+              "raw": "{\n    \"email\": \"customer1@gmail.com\",\n    \"firstname\": \"prenom\",\n    \"lastname\": \"nom\",\n    \"order_id\": \"ORDERID\",\n    \"page_number\": 1,\n    \"phone\": \"0320411160\",\n    \"sort_field\": \"SHIPPING_GROUP_STATUS\",\n    \"sort_type\": \"DESC\",\n    \"status\": \"IN_TRANSIT\"\n}"
             },
             "url": {
               "raw": "{{host}}/order-management/v2/orders/search/{{storeId}}?ean={{ean}}&to_collect_cnc_delay_days=14&to_collect_cnc1h_delay_days=2",
@@ -569,7 +557,7 @@
           "response": []
         }
       ],
-      "_postman_id": "4d4e5e9e-1968-477d-bbec-3b13832f5423"
+      "id": "4d4e5e9e-1968-477d-bbec-3b13832f5423"
     }
   ],
   "auth": {
