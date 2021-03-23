@@ -1,0 +1,652 @@
+{
+  "info": {
+    "_postman_id": "2a2839d4-0677-4337-942f-c6732c698a44",
+    "name": "Orders",
+    "schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Dashboard",
+      "item": [
+        {
+          "name": "order dashboard",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "59fe46de-cb8a-452f-b89e-0609e8633f58",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "// get JSON response body",
+                  "var jsonData = pm.response.json();",
+                  "",
+                  "controls.checkOrderCounter(pm, jsonData, \"to_prepare\");",
+                  "dashboard.checkOrderCounter(pm, jsonData, \"to_hand_over\");",
+                  "dashboard.checkOrderCounter(pm, jsonData, \"to_receive_today\");",
+                  "controls.checkOrderCounter(pm, jsonData, \"with_issue\");",
+                  "",
+                  "// set count to be used in others tests",
+                  "pm.globals.set(\"orders_to_prepare_count\", jsonData.to_prepare)",
+                  "pm.globals.set(\"orders_to_hand_over_count\", jsonData.to_hand_over)",
+                  "pm.globals.set(\"orders_to_receive_today_count\", jsonData.to_receive_today)",
+                  "pm.globals.set(\"orders_with_issue_count\", jsonData.with_issue)"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "_postman_id": "8288bf2e-4cf7-48bf-9203-52dbd7359ed1",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "x-api-key",
+                "value": "{{api_key_order}}"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "{{locale}}"
+              },
+              {
+                "key": "x-target-country",
+                "value": "{{locale}}"
+              },
+              {
+                "key": "Channel",
+                "value": "instore_android"
+              },
+              {
+                "key": "force-environment",
+                "value": "decashop"
+              },
+              {
+                "key": "force-order-mgt-env",
+                "value": "chopper"
+              }
+            ],
+            "url": {
+              "raw": "{{host}}/order-management/v2/orders/counter/{{storeId}}?ean={{ean}}&to_collect_cnc_delay_days=14&to_collect_cnc1h_delay_days=2",
+              "host": [
+                "{{host}}"
+              ],
+              "path": [
+                "order-management",
+                "v2",
+                "orders",
+                "counter",
+                "{{storeId}}"
+              ],
+              "query": [
+                {
+                  "key": "ean",
+                  "value": "{{ean}}"
+                },
+                {
+                  "key": "to_collect_cnc_delay_days",
+                  "value": "14"
+                },
+                {
+                  "key": "to_collect_cnc1h_delay_days",
+                  "value": "2"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "_postman_id": "450073af-9a37-457c-81b4-cb497c2a1fe7",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "id": "7f6ff9df-ab6a-4a5d-b95a-d7dc73b4c7a1",
+            "type": "text/javascript",
+            "exec": [
+              "// controls library",
+              "dashboard = {",
+              "    checkOrderCounter: function (pm, jsonData, field) {",
+              "        pm.test(`field \"${field}\" is present, a number and greater or equal to 0`, function () {",
+              "            pm.expect(jsonData).to.have.property(field);",
+              "            var fieldValue = jsonData[field];",
+              "            pm.expect(fieldValue).to.be.a('number');",
+              "            pm.expect(fieldValue >= 0,\"value is not greater or equal to 0\").eql(true)",
+              "        });",
+              "    }",
+              "};"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "id": "ec4bf138-b8ff-4aef-a63e-6d34088ca363",
+            "type": "text/javascript",
+            "exec": [
+              ""
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "To Hand Over",
+      "item": [
+        {
+          "name": "orders list (default)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "e20f6cef-9370-42e1-b38b-8218e61294be",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "// get JSON response body",
+                  "var jsonData = pm.response.json();",
+                  "",
+                  "",
+                  "pm.test(\"orders list is present and not empty\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property(\"items\");",
+                  "    pm.expect(jsonData.items.length >= 0).to.eql(true);",
+                  "});",
+                  "",
+                  "// get the count from the last order dashboard call",
+                  "var expectedSize = pm.globals.get(\"orders_to_hand_over_count\");",
+                  "",
+                  "pm.test(`orders count matches with dashboard count (${expectedSize})`, function () {",
+                  "    pm.expect(jsonData.size).to.eql(expectedSize);",
+                  "});",
+                  "",
+                  "// get the first order JSON object",
+                  "var firstOrder = jsonData.items[0];",
+                  "",
+                  "// test its format",
+                  "orders.checkOrderFormat(pm, firstOrder)",
+                  "",
+                  "// get sort attributes previously set in 'Pre-request Script'",
+                  "var expectedSortType = pm.variables.get(\"sort_type\");",
+                  "var expectedSortField = pm.variables.get(\"sort_field\");",
+                  "",
+                  "pm.test(`sort type matches the request: ${expectedSortType}`, function () {",
+                  "    pm.expect(jsonData.metadatas.sort.type).to.eql(expectedSortType);",
+                  "});",
+                  "",
+                  "pm.test(`sort field matches the request: ${expectedSortField}`, function () {",
+                  "    pm.expect(jsonData.metadatas.sort.field).to.eql(expectedSortField);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "id": "b6f4eed4-1f0a-478b-9076-c69afa73aea1",
+                "exec": [
+                  "// set sort attributes",
+                  "pm.variables.set(\"sort_field\", \"CREATION_DATE\");",
+                  "pm.variables.set(\"sort_type\", \"ASC\");"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "_postman_id": "39d25487-7c3c-4741-aa28-2f508b7599db",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "x-api-key",
+                "value": "{{api_key_order}}"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "{{locale}}"
+              },
+              {
+                "key": "x-target-country",
+                "value": "{{locale}}"
+              },
+              {
+                "key": "Channel",
+                "value": "instore_android"
+              },
+              {
+                "key": "force-environment",
+                "value": "decashop"
+              },
+              {
+                "key": "force-order-mgt-env",
+                "value": "chopper"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"page_number\": 1,\n    \"sort_field\": \"{{sort_field}}\",\n    \"sort_type\": \"{{sort_type}}\",\n    \"status\": \"TO_COLLECT\"\n}",
+              "options": {
+                "raw": {}
+              }
+            },
+            "url": {
+              "raw": "{{host}}/order-management/v2/orders/search/{{storeId}}?ean={{ean}}&to_collect_cnc_delay_days=14&to_collect_cnc1h_delay_days=2",
+              "host": [
+                "{{host}}"
+              ],
+              "path": [
+                "order-management",
+                "v2",
+                "orders",
+                "search",
+                "{{storeId}}"
+              ],
+              "query": [
+                {
+                  "key": "ean",
+                  "value": "{{ean}}"
+                },
+                {
+                  "key": "to_collect_cnc_delay_days",
+                  "value": "14"
+                },
+                {
+                  "key": "to_collect_cnc1h_delay_days",
+                  "value": "2"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "_postman_id": "33e3f3d0-1a34-417b-88ca-7b96fc0b3221",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "id": "8ec98b10-3a3a-4d82-8df7-857d39eb8c12",
+            "type": "text/javascript",
+            "exec": [
+              ""
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "id": "7426a63a-38e3-4157-86e1-2649c45949b5",
+            "type": "text/javascript",
+            "exec": [
+              ""
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "To Receive",
+      "item": [
+        {
+          "name": "orders list (default)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "id": "b01a6481-8c91-4da2-b247-8f6473bf7b5e",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "// get JSON response body",
+                  "var jsonData = pm.response.json();",
+                  "",
+                  "",
+                  "pm.test(\"orders list is present and not empty\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property(\"items\");",
+                  "    pm.expect(jsonData.items.length >= 0).to.eql(true);",
+                  "});",
+                  "",
+                  "// get the count from the last order dashboard call",
+                  "var expectedSize = pm.globals.get(\"orders_to_receive_today_count\");",
+                  "",
+                  "pm.test(`orders count matches with dashboard count (${expectedSize})`, function () {",
+                  "    pm.expect(jsonData.size).to.eql(expectedSize);",
+                  "});",
+                  "",
+                  "// get the first order JSON object",
+                  "var firstOrder = jsonData.items[0];",
+                  "",
+                  "// test its format",
+                  "orders.checkOrderFormat(pm, firstOrder)",
+                  "",
+                  "// get sort attributes previously set in 'Pre-request Script'",
+                  "var expectedSortType = pm.variables.get(\"sort_type\");",
+                  "var expectedSortField = pm.variables.get(\"sort_field\");",
+                  "",
+                  "pm.test(`sort type matches the request: ${expectedSortType}`, function () {",
+                  "    pm.expect(jsonData.metadatas.sort.type).to.eql(expectedSortType);",
+                  "});",
+                  "",
+                  "pm.test(`sort field matches the request: ${expectedSortField}`, function () {",
+                  "    pm.expect(jsonData.metadatas.sort.field).to.eql(expectedSortField);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "id": "c2e4d0b2-de52-47ba-80a0-f0edc11d8161",
+                "exec": [
+                  "// set sort attributes",
+                  "pm.variables.set(\"sort_field\", \"CREATION_DATE\");",
+                  "pm.variables.set(\"sort_type\", \"ASC\");"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "_postman_id": "84a21f4f-3977-4ba2-bf8a-e5dea3912555",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "x-api-key",
+                "value": "{{api_key_order}}"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "{{locale}}"
+              },
+              {
+                "key": "x-target-country",
+                "value": "{{locale}}"
+              },
+              {
+                "key": "Channel",
+                "value": "instore_android"
+              },
+              {
+                "key": "force-environment",
+                "value": "decashop"
+              },
+              {
+                "key": "force-order-mgt-env",
+                "value": "chopper"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"page_number\": 1,\n    \"sort_field\": \"{{sort_field}}\",\n    \"sort_type\": \"{{sort_type}}\",\n    \"status\": \"IN_TRANSIT\"\n}",
+              "options": {
+                "raw": {}
+              }
+            },
+            "url": {
+              "raw": "{{host}}/order-management/v2/orders/search/{{storeId}}?ean={{ean}}&to_collect_cnc_delay_days=14&to_collect_cnc1h_delay_days=2",
+              "host": [
+                "{{host}}"
+              ],
+              "path": [
+                "order-management",
+                "v2",
+                "orders",
+                "search",
+                "{{storeId}}"
+              ],
+              "query": [
+                {
+                  "key": "ean",
+                  "value": "{{ean}}"
+                },
+                {
+                  "key": "to_collect_cnc_delay_days",
+                  "value": "14"
+                },
+                {
+                  "key": "to_collect_cnc1h_delay_days",
+                  "value": "2"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "receive order",
+          "_postman_id": "da3529d1-7cd1-445d-8590-ab1a33aa30ca",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "x-api-key",
+                "value": "{{api_key_order}}"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "{{locale}}"
+              },
+              {
+                "key": "x-target-country",
+                "value": "{{locale}}"
+              },
+              {
+                "key": "Channel",
+                "value": "instore_android"
+              },
+              {
+                "key": "force-environment",
+                "value": "decashop"
+              },
+              {
+                "key": "force-order-mgt-env",
+                "value": "chopper"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"ean\": \"{{ean}}\",\n    \"storeId\": {{storeId}},\n    // from shipping_info.tracking_numbers.id\n    \"tracking_number\": \"TEST1AT000000000140\"\n}",
+              "options": {
+                "raw": {}
+              }
+            },
+            "url": "{{host}}/order-management/v2/orders/receive"
+          },
+          "response": []
+        }
+      ],
+      "_postman_id": "36f15c30-1f6c-4816-9832-91be51f835ba"
+    },
+    {
+      "name": "Advanced Search",
+      "item": [
+        {
+          "name": "search orders",
+          "_postman_id": "00450f25-69d3-40c7-8d8e-f30399ad6cce",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "x-api-key",
+                "value": "{{api_key_order}}"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "{{locale}}"
+              },
+              {
+                "key": "x-target-country",
+                "value": "{{locale}}"
+              },
+              {
+                "key": "Channel",
+                "value": "instore_android"
+              },
+              {
+                "key": "force-environment",
+                "value": "decashop"
+              },
+              {
+                "key": "force-order-mgt-env",
+                "value": "chopper"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"email\": \"customer1@gmail.com\",\n    \"firstname\": \"prenom\",\n    \"lastname\": \"nom\",\n    \"order_id\": \"ORDERID\",\n    \"page_number\": 1,\n    \"phone\": \"0320411160\",\n    \"sort_field\": \"SHIPPING_GROUP_STATUS\",\n    \"sort_type\": \"DESC\",\n    \"status\": \"IN_TRANSIT\"\n}",
+              "options": {
+                "raw": {}
+              }
+            },
+            "url": {
+              "raw": "{{host}}/order-management/v2/orders/search/{{storeId}}?ean={{ean}}&to_collect_cnc_delay_days=14&to_collect_cnc1h_delay_days=2",
+              "host": [
+                "{{host}}"
+              ],
+              "path": [
+                "order-management",
+                "v2",
+                "orders",
+                "search",
+                "{{storeId}}"
+              ],
+              "query": [
+                {
+                  "key": "ean",
+                  "value": "{{ean}}"
+                },
+                {
+                  "key": "to_collect_cnc_delay_days",
+                  "value": "14"
+                },
+                {
+                  "key": "to_collect_cnc1h_delay_days",
+                  "value": "2"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "_postman_id": "4d4e5e9e-1968-477d-bbec-3b13832f5423"
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": {
+      "token": "{{token}}"
+    }
+  },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "id": "1ed2b39e-77ae-4052-b747-099274edfb3a",
+        "type": "text/javascript",
+        "exec": [
+          "// controls library",
+          "orders = {",
+          "    /**",
+          "     * assert that an object have a field on the correct type",
+          "     * @param pm",
+          "     * @param object JSON to check",
+          "     * @param field JSON attribute to search for",
+          "     * @param type expected JSON attribute type",
+          "     * @param locator used in debubb message",
+          "     */",
+          "    checkField: function (pm, object, field, type, locator) {",
+          "        pm.test(`${locator}.${field} matches expected format (${type})`, function () {",
+          "            pm.expect(object, `attribute ${field} not found`).to.have.property(field);",
+          "            pm.expect(object[field], `type of attribute ${field} not correct`).to.be.a(type);",
+          "        });",
+          "    },",
+          "    /**",
+          "     * assert an order object correct structure",
+          "     */",
+          "    checkOrderFormat: function (pm, order) {",
+          "        pm.test(\"first order matches the expected format\", function () {",
+          "            orders.checkField(pm, order, \"id\", \"string\", \"items[0]\");",
+          "            orders.checkField(pm, order, \"parent_id\", \"string\", \"items[0]\");",
+          "            orders.checkField(pm, order, \"creation_date\", \"string\", \"items[0]\");",
+          "            orders.checkField(pm, order, \"modification_date\", \"string\", \"items[0]\");",
+          "            orders.checkField(pm, order, \"status\", \"string\", \"items[0]\");",
+          "            orders.checkField(pm, order, \"order_status\", \"string\", \"items[0]\");",
+          "            orders.checkField(pm, order.customer, \"id\", \"string\", \"items[0].customer\");",
+          "            orders.checkField(pm, order.customer, \"lastname\", \"string\", \"items[0].customer\");",
+          "            orders.checkField(pm, order.customer, \"firstname\", \"string\", \"items[0].customer\");",
+          "            orders.checkField(pm, order.customer, \"phone\", \"string\", \"items[0].customer\");",
+          "            orders.checkField(pm, order.customer, \"email\", \"string\", \"items[0].customer\");",
+          "            orders.checkField(pm, order, \"paid\", \"number\", \"items[0]\");",
+          "            orders.checkField(pm, order, \"price\", \"number\", \"items[0]\");",
+          "            orders.checkField(pm, order, \"transactions\", \"number\", \"items[0]\");",
+          "            orders.checkField(pm, order, \"number_of_packages\", \"number\", \"items[0]\");",
+          "            orders.checkField(pm, order.preparation_info, \"promise_date\", \"string\", \"items[0].preparation_info\");",
+          "            orders.checkField(pm, order.preparation_info.picker, \"lastname\", \"string\", \"items[0].preparation_info.picker\");",
+          "            orders.checkField(pm, order.preparation_info.picker, \"firstname\", \"string\", \"items[0].preparation_info.picker\");",
+          "            orders.checkField(pm, order.shipping_info, \"carrier_type\", \"string\", \"items[0].shipping_info\");",
+          "            orders.checkField(pm, order.shipping_info.tracking_numbers[0], \"id\", \"string\", \"items[0].shipping_info.tracking_numbers[0]\");",
+          "            orders.checkField(pm, order, \"delivery_type\", \"string\", \"items[0]\");",
+          "            orders.checkField(pm, order, \"collect_zone\", \"string\", \"items[0]\");",
+          "            orders.checkField(pm, order.products[0], \"id\", \"number\", \"items[0].products[0]\");",
+          "            orders.checkField(pm, order.products[0].items[0], \"sku_code\", \"string\", \"items[0].products[0].items[0]\");",
+          "            orders.checkField(pm, order.products[0].items[0], \"quantity\", \"number\", \"items[0].products[0].items[0]\");",
+          "            orders.checkField(pm, order, \"sports\", \"string\", \"items[0]\");",
+          "        });",
+          "    }",
+          "};"
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "id": "1cf68a00-9825-43a1-b09b-e87e5c9aecf4",
+        "type": "text/javascript",
+        "exec": [
+          ""
+        ]
+      }
+    }
+  ]
+}
